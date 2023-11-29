@@ -60,7 +60,7 @@ def initialize():
 
     for b in range(3):
         for s in range(9):
-            path = "~/PycharmProjects/launchpad/sounds/banks/"+str(b)+"/"+str(s)+".mp3"
+            path = "sounds/banks/"+str(b)+"/"+str(s)+".mp3"
             sound_banks[b][s] = pygame.mixer.Sound(path)
 
 def play_sound(sound):
