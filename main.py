@@ -22,12 +22,128 @@ sequence_position = 0
 sound_banks = [[0 for _ in range(9)] for _ in range(3)]
 sequences = [[[0 for _ in range(16)] for _ in range(9)] for seq in range(3)]
 
+pygame.init()
 pygame.mixer.init()
 
 # Créez des objets pygame.mixer.Sound pour chaque son
 kick_sound = pygame.mixer.Sound("sounds/banks/0/0.mp3")
 hihat_sound = pygame.mixer.Sound("sounds/banks/1/0.mp3")
 snare_sound = pygame.mixer.Sound("sounds/banks/2/0.mp3")
+
+class Button:
+    def __init__(self, x, y, size, button_id, text=None, sound=None):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.button_id = button_id
+        self.text = text
+        #self.sound = pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')
+        self.sound = sound
+        self.clicked = False
+
+    def draw(self, surface):
+        color = (255, 0, 0) if self.clicked \
+            else (255, 255, 255)
+
+        pygame.draw.rect(surface, color, (self.x, self.y, self.size, self.size))
+
+        if self.text:
+            font = pygame.font.Font(None, 18)
+            text = font.render(self.text, True, (0, 0, 0))
+            text_rect = text.get_rect(center=(self.x + self.size // 2, self.y + self.size // 2))
+            surface.blit(text, text_rect)
+
+    def is_clicked(self, mouse_pos):
+        return (self.x < mouse_pos[0] < self.x + self.size and
+                self.y < mouse_pos[1] < self.y + self.size)
+
+    def play_sound(self):
+        self.sound.play()
+class Track:
+    def __init__(self, x, y, width, height, track_id):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.track_id = track_id
+        self.buttons_pressed = []
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, (200, 200, 200), (self.x, self.y, self.width, self.height))
+
+        button_height = self.height // 9
+
+        for i in range(9):
+            button_x = self.x + 50  # Ajustement de la position en x
+            button_y = self.y + i * button_height
+            pygame.draw.rect(surface, (255, 0, 0), (button_x, button_y, self.width, button_height), 2)
+
+            # Draw pressed buttons
+            for button_id in self.buttons_pressed:
+                if button_id == i:
+                    pygame.draw.rect(surface, (0, 0, 0), (button_x, button_y, self.width, button_height))
+class UIBoard:
+    global button
+    window = pygame.display.set_mode((1200, 800))
+    clock = pygame.time.Clock()
+    run = True
+
+    buttons = [
+        Button(100, 700, 80, 1, "Track 1", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(200, 700, 80, 2, "Track 2", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(300, 700, 80, 3, "Track 3", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(500, 700, 50, 4, "Stop", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(600, 700, 50, 5, "Play/Record", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(800, 650, 50, 6, "Select 1", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(900, 650, 50, 7, "Select 2", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(1000, 650, 50, 8, "Select 3", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(800, 700, 50, 9, "Select 4", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(900, 700, 50, 10, "Select 5", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(1000, 700, 50, 11, "Select 6", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(800, 750, 50, 12, "Select 7", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(900, 750, 50, 13, "Select 8", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+        Button(1000, 750, 50, 14, "Select 9", pygame.mixer.Sound(f'mixkit-fast-small-sweep-transition-166.wav')),
+    ]
+
+    tracks = [
+        Track(100, 100, 900, 150, 1),
+        Track(100, 300, 900, 150, 2),
+        Track(100, 500, 900, 150, 3),
+    ]
+
+    current_track = None
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            # elif event.type == pygame.MOUSEBUTTONDOWN:
+            #     mouse_pos = pygame.mouse.get_pos()
+            #     for button in buttons:
+            #         if button.is_clicked(mouse_pos):
+            #             button.clicked = not button.clicked
+            #             if button.clicked:
+            #                 current_track = button.button_id
+            #                 button.play_sound()
+
+                # for track in tracks:
+                    # track_rect = pygame.Rect(track.x, track.y, track.width, track.height)
+                    # if track_rect.collidepoint(mouse_pos):
+                        # current_track = track
+                        # current_track.sound.play()
+                        # current_track.buttons_pressed.append(button.button_id)
+
+        pygame.display.update()
+        clock.tick(40)
+        window.fill((225, 225, 225))
+
+        # Draw tracks
+        for track in tracks:
+            track.draw(window)
+
+        # Draw buttons
+        for button in buttons:
+            button.draw(window)
 
 def initialize():
     global sound_banks, bpm, bpm_ms
